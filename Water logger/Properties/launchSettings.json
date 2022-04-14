@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Water logger": {
+      "commandName": "Project",
+      "workingDirectory": "C:\\Users\\matth\\source\\repos\\Water logger\\Water logger"
+    }
+  }
+}

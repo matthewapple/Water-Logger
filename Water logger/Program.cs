@@ -1,5 +1,7 @@
 ﻿using System;
 using Microsoft.Data.Sqlite;
+using System.Collections.Generic;
+using System.Globalization;
 
 namespace Water_logger
 {
@@ -54,7 +56,15 @@ namespace Water_logger
                         break;
 
                     case "2":
+                        Update();
+                        break;
+
+                    case "3":
                         GetAllRecords();
+                        break;
+
+                    case "4":
+                        Delete();
                         break;
                 }
                 Environment.Exit(0);
@@ -121,15 +131,84 @@ namespace Water_logger
                 var tableCommand = connection.CreateCommand();
 
                 tableCommand.CommandText = @"SELECT * FROM drinking_water";
+
+                List<drinkingwater> tableData = new List<drinkingwater>();
+
+                var reader = tableCommand.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        tableData.Add(new drinkingwater
+                        {
+                            Id = reader.GetInt32(0),
+                            Date = DateTime.ParseExact(reader.GetString(1), "MM-dd-yy", new CultureInfo("en-US")),
+                            Quantity = reader.GetInt32(2)
+
+                        }) ; ;
+
+                    }
+                
+                }
+                else
+                    Console.WriteLine("No data found");
+
+                connection.Close();
+
+                Console.WriteLine("\n---------------");
+
+                foreach(var i in tableData)
+                {
+                    Console.WriteLine($"{i.Id} -- {i.Date.ToString("MM-dd-yy")} -- Quantity: {i.Quantity}");
+                }
+
+                Console.WriteLine("\n---------------");
+
             }
+        }
+        private static void Delete()
+        {
+            Console.Clear();
+            
+            GetAllRecords();
+
+            var inputId = GetNumberInput("Enter ID of record you would to delete. Type 0 to return to main menu.");
+
+            using(var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+                
+                var tableCommand = connection.CreateCommand();
+
+                tableCommand.CommandText = $"DELETE FROM drinking_water WHERE Id = {inputId}";
+
+                int rowCount = tableCommand.ExecuteNonQuery();
+
+                if (rowCount == 0)
+                {
+                    Console.WriteLine("Record does not exist");
+                    Delete();
+                }
+                    
+                else
+                    Console.WriteLine("Record was deleted");
+                
+                connection.Close();
+            }
+            GetUserInput();
+        }
+        private static void Update()
+        {
+
         }
 
     }
 
     public class drinkingwater
     {
-        public int id { get; set; }
-        public DateTime date { get; set; }
-        public int quantity { get; set; }
+        public int Id { get; set; }
+        public DateTime Date { get; set; }
+        public int Quantity { get; set; }
     }
 }

@@ -73,8 +73,6 @@ namespace Water_logger
                 }
                 
             }
-
-
         }
         private static void GetAllRecords()
         {
@@ -144,7 +142,7 @@ namespace Water_logger
         }
         private static void Delete()
         {
-            Console.Clear();
+
             GetAllRecords();
 
             var inputId = GetNumberInput("Enter ID of record you would like to delete. Type 0 to return to main menu.");
@@ -185,6 +183,7 @@ namespace Water_logger
 
             var inputId = GetNumberInput("Enter ID of record you would like to update. Type 0 to return to main menu.");
 
+
             using (var connection = new SqliteConnection(connectionString))
             {
                 connection.Open();
@@ -201,7 +200,7 @@ namespace Water_logger
 
                 if (rowCount == 0)
                 {
-                    Console.WriteLine("Record not exist. Please try again.");
+                    Console.WriteLine("Record does not exist. Please try again.");
                 }
                 else
                 {
@@ -217,6 +216,7 @@ namespace Water_logger
             Console.WriteLine(message);
 
             string input = Console.ReadLine();
+           
 
             if (input == "0")
             {
@@ -224,9 +224,14 @@ namespace Water_logger
                 GetUserInput();
             }
 
+            while ((!Int32.TryParse(input, out _)) || (Convert.ToInt32(input) < 0))
+            {
+                Console.WriteLine("Invalid input. Please try again or press 0 to return to main menu.");
+                input = Console.ReadLine();
+            }
 
-            return Convert.ToInt32(input);
-
+            int finalInput = Convert.ToInt32(input);
+            return finalInput;
         }
         internal static string GetDateInput()
         {
@@ -236,6 +241,12 @@ namespace Water_logger
 
             if (input == "0")
                 GetUserInput();
+
+            while (!DateTime.TryParseExact(input, "MM-dd-yy", new CultureInfo("en-US"), DateTimeStyles.None, out _))
+            {
+                Console.WriteLine("Invalid format. (Format MM-DD-YY required). Type 0 to return to main menu, or try again");
+                input = Console.ReadLine();
+            };
 
             return input;
         }
